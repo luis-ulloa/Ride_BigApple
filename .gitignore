@@ -13,3 +13,6 @@ __pycache__/
 
 # Ignore resources folder
 /resources
+
+# Ignore the master data file, too big: 5.3GB
+/data/train.csv
