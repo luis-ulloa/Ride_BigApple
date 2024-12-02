@@ -16,3 +16,7 @@ __pycache__/
 
 # Ignore the master data file, too big: 5.3GB
 /data/train.csv
+
+# Ignore experimental notebooks
+/code/04_Model_Testing.ipynb
+/code/05_Folium_Maps.ipynb
