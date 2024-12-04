@@ -1,3 +1,4 @@
+#--- IMPORTS ---------------------------------------------
 import numpy as np
 import pandas as pd
 from operator import mod
@@ -10,8 +11,17 @@ import googlemaps
 from polyline import decode
 from geopy.distance import geodesic
 from datetime import datetime
+#---------------------------------------------------------
+
+####---------- DISCLAIMER -----------------------------####
+# I leveraged chatgpt to write a lot of these code lines
+# doing it on my own, under time constraints, would take too long
+# I provided instructions and then refactored some of the lines
+# to make it work the way a I wanted
 
 
+
+#----- set up background image for steamlit app ---------------
 page_bg_img = '''
 <style>
 [data-testid="stAppViewContainer"] {
@@ -25,16 +35,18 @@ page_bg_img = '''
 }
 </style>
 '''
-
 st.markdown(page_bg_img, unsafe_allow_html = True)
+#----------------------------------------------------------------
 
 
-
-
+#---- header section  --------------------------------------------------------
 st.title('Ride BigApple 🚖🍎')
 
 st.subheader('Hail a cab from your phone!')
+#-----------------------------------------------------------------------------
 
+
+# load pickup/dropoff data to feed clustering models
 original_pickup_coordinates = pd.read_csv('../data/clean_data/taxi_clean_set_v3.csv', usecols = ['pickup_longitude', 'pickup_latitude'])
 original_dropoff_coordinates = pd.read_csv('../data/clean_data/taxi_clean_set_v3.csv', usecols = ['dropoff_longitude', 'dropoff_latitude'])
 
@@ -74,7 +86,13 @@ gmaps = googlemaps.Client(key = api_key)
 #-------------------------------------------------------------
 
 #----- predictive logic: functions ---------------------------
+
+# geocode addresses
 def get_coordinates(address):
+    '''
+    The function takes an address and returns the corresponding
+    latitude and longitude coordinates.  Address must be a string.
+    '''
     location = gmaps.geocode(address)
     if location:
         return location[0]['geometry']['location']['lat'], location[0]['geometry']['location']['lng']
@@ -82,8 +100,18 @@ def get_coordinates(address):
         raise ValueError(f'Address {address} is invalid. Try again')
 
 
+# calculate nearest centroid: pickup address
 def pickup_cluster_mapping(dbs1_model, original_pickup_coordinates):
-   
+    '''
+    This function calculates the nearest centroid to each pickup cluster
+    in order to assign a cluster to the addresses passed in from the app.
+
+    Parameters: 
+    dbs1_model: object, trained model
+    original_pickup_coordinates: dataframe
+
+    Return: nearest centroid for any given address to link to corresponding cluster
+    '''
     cluster_centers = []
     cluster_labels = []
 
@@ -103,8 +131,11 @@ def pickup_cluster_mapping(dbs1_model, original_pickup_coordinates):
 
     return nearest_centroid
 
+# calculate nearest centroid: dropoff address 
 def dropoff_cluster_mapping(dbs2_model, original_dropoff_coordinates):
-    
+    '''
+    This function does the same as pickup_cluster_mapping, but for dropoff addresses.
+    '''
     cluster_centers = []
     cluster_labels = []
 
@@ -124,13 +155,18 @@ def dropoff_cluster_mapping(dbs2_model, original_dropoff_coordinates):
 
     return nearest_centroid
 
-
+# create centroids ------------------------------------------------------------------------------
 pickup_cluster_mapping_model = pickup_cluster_mapping(dbs1_model, original_pickup_coordinates)
 dropoff_cluster_mapping_model = dropoff_cluster_mapping(dbs2_model, original_dropoff_coordinates)
+# -----------------------------------------------------------------------------------------------
 
-
+# determine if a given address is within an established cluster
 def is_within_cluster(coordinates, cluster, cluster_mapping_model):
-
+    '''
+    This function takes in the address coordinates, a specific cluster to check against,
+    and the output from either pickup_cluster_mapping or dropoff_cluster_mapping functions
+    to see if the address is within that cluster.
+    '''
     predicted_cluster = cluster_mapping_model.predict([coordinates])[0]
 
     if predicted_cluster == cluster:
@@ -138,7 +174,22 @@ def is_within_cluster(coordinates, cluster, cluster_mapping_model):
     else:
         return 0
     
+# putting it all togeter    
 def prepare_features(pickup_address, dropoff_address, pickup_cluster_mapping_model, dropoff_cluster_mapping_model):
+    '''
+    This function puts everything together and builds a dataframe with all features to pass to the model
+    in the correct order.
+
+    Parameters:
+    pickup_address: string, the user's pickup location
+    dropoff_address: string, the user's destination
+    pickup_cluster_mapping_model: object, the centroids for the pickup clusters
+    dropoff_cluster_mapping_model: object, the centroids for the dropoff clusters
+
+    Return:
+    features: dataframe, all features that correspond to the set of pickup/dropoff addresses to 
+    pass to the model and predict a fare for this set of addresses.
+    '''
 
     # parse coordinates ------------------------------------------------------------------------------------------
     pickup_coordinates = get_coordinates(pickup_address)
@@ -240,59 +291,70 @@ def prepare_features(pickup_address, dropoff_address, pickup_cluster_mapping_mod
     return pd.DataFrame([features]), pickup_coordinates, dropoff_coordinates
 #-------------------------------------------------------------------------------------------------------------------
 
+
+#------- tracing actual ride route on a map ------------------------------------------------------------------------
+
+# get route information for ride
 def get_route_from_google_maps(pickup_coordinates, dropoff_coordinates):
     '''
-    Fetch route information from Google Maps Directions API.
-    Args:
-        pickup_coords: Tuple (latitude, longitude) for the pickup location.
-        dropoff_coords: Tuple (latitude, longitude) for the dropoff location.
-    Returns:
+    This function fetches the route information from google maps API.
+
+    Parameters:
+    pickup_coordinates: tuple (latitude, longitude) for the pickup location.
+    dropoff_coordinates: tuple (latitude, longitude) for the dropoff location.
+    
+    Return:
         A list of route coordinates (latitude, longitude).
     '''
 
-    # Request directions
+    # request directions
     directions_result = gmaps.directions(
         origin = pickup_coordinates,
         destination = dropoff_coordinates,
         mode = 'driving'
     )
     
-    # Extract the route (polyline) from the response
+    # extract the route (polyline) from the response
     if directions_result:
         polyline = directions_result[0]['overview_polyline']['points']
-        return decode(polyline)  # Decode polyline into (latitude, longitude) pairs
+        return decode(polyline)  # decode polyline into (latitude, longitude) pairs
     else:
         raise ValueError('No route found between the given locations.')
 
-
-def plot_route_on_map(route_coords, pickup_coordinates, dropoff_coordinates):
+# plot route on map object
+def plot_route_on_map(route_coordinates, pickup_coordinates, dropoff_coordinates):
     '''
-    Plot a route and markers for pickup/dropoff locations on a Folium map.
-    Args:
-        route_coords: List of route coordinates (latitude, longitude).
-        pickup_coords: Tuple for the pickup location.
-        dropoff_coords: Tuple for the dropoff location.
-    Returns:
-        Folium Map object.
+    This function plots a route and markers for pickup/dropoff locations on a folium map.
+    
+    Parameters:
+    route_coordinates: list of route coordinates (latitude, longitude).
+    pickup_coords: tuple for the pickup location.
+    dropoff_coordinatess: tuple for the dropoff location.
+    
+    Return:
+        folium map object.
     '''
-    # Initialize a map centered at the pickup location
+    # initialize a map centered at the pickup location
     map_route = folium.Map(location = pickup_coordinates, zoom_start = 13,  tiles = 'CartoDB positron')
 
-    # Add route to the map
-    folium.PolyLine(route_coords, color = '#003366', weight = 5, opacity = 0.8).add_to(map_route)
+    # add route to the map
+    folium.PolyLine(route_coordinates, color = '#003366', weight = 5, opacity = 0.8).add_to(map_route)
 
     # add pickup and dropoff markers / what a shock to find out folium.Icon does not support hexadecimal values
     folium.Marker(pickup_coordinates, popup = 'Pickup Location', icon = folium.Icon(color = 'green')).add_to(map_route)
     folium.Marker(dropoff_coordinates, popup = 'Dropoff Location', icon = folium.Icon(color = 'red')).add_to(map_route)
 
     return map_route
+#-------------------------------------------------------------------------------------------------------------------------
 
 
+#---- user interaction section ------------------------------------------------------------------------------------------
 
-
+# address fields
 pickup = st.text_input('Please enter your pickup location: ')
 dropoff = st.text_input('Please enter your destination: ')
 
+# submit button logic
 if st.button('Estimate your Fare'):
   if not pickup or not dropoff:
     st.error('Please enter pickup and destination')
@@ -304,15 +366,16 @@ if st.button('Estimate your Fare'):
       # get distance, convert to miles
       distance = model_input[0]['estimated_distance'][0] / 1.60934
       
+      # screen outputs
       st.write('**Fantastic, your NYC cab will arrive in less than 5 mins!!**')
       st.write(f'The estimated distance for your trip is **{distance:.1f}** miles.')
-      st.write(f'Your fare will be approximately: **${fare:.2f}**')
+      st.write(f'Your estimated fare will be approximately: **{fare:.2f}**, but the final fare my fluctuate between **{(fare - 3.6):.2f}** and **{(fare + 3.6):.2f}** due to traffic conditions and actual street routings')
       
-      
+      # load map and trace route
       route_coordinates = get_route_from_google_maps(model_input[1], model_input[2])
       route_map = plot_route_on_map(route_coordinates,  model_input[1], model_input[2])
       folium_static(route_map)
 
-      #st.metric('Probability', f'{100 * round(prob, 2)}%')
     except Exception as e:
       st.error(f'Error: {e}')
+#-------------------------------------------------------------------------------------------------------------------------
