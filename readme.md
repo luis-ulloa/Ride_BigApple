@@ -3,7 +3,7 @@
 ### Problem Statement
 
 Can yellow cab fares be predicted within New York City's five boroughs based on time of the day, time of the year and certain high passenger areas?
-The aim here is to use existing historical data of NYC cab rides spanning several years and building a model that can be integrated into a simple app to request a taxi ride and predict the expected fare and distance for the passenger..
+The aim here is to use existing historical data of NYC cab rides spanning several years and building a model that can be integrated into a simple app to request a taxi ride and predict the expected fare and distance for the passenger.
 
 
 -----
@@ -29,27 +29,27 @@ After the data cleaning process was completed, the following datasets were gener
 |**geodesic_distance**|_float_|Straight line distance over earth surface between pickup and dropoff points. Float format, unit in kilometers.|
 |**pickup_clusters**|_integer_|Cluster label assigned by DBSCAN algorithm. Integer format, no units.|
 |**pickup_clusters_color**|_object_|Color corresponding to assigned cluster label. String format, unit in hexadecimals.|
-|**p_0**|_integer_|Pickup cluster number 0, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**p_1**|_integer_|Pickup cluster number 1, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**p_2**|_integer_|Pickup cluster number 2, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**p_3**|_integer_|Pickup cluster number 3, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**p_4**|_integer_|Pickup cluster number 4, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
+|**p_0**|_integer_|Pickup cluster number 0, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**p_1**|_integer_|Pickup cluster number 1, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**p_2**|_integer_|Pickup cluster number 2, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**p_3**|_integer_|Pickup cluster number 3, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**p_4**|_integer_|Pickup cluster number 4, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
 |**dropoff_clusters**|_integer_|Cluster label assigned by DBSCAN algorithm. Integer format, no units.|
 |**dropoff_clusters_color**|_object_|Color corresponding to assigned cluster label. String format, unit in hexadecimals.|
-|**d_0**|_integer_|Dropoff cluster number 0, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**d_1**|_integer_|Dropoff cluster number 1, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**d_2**|_integer_|Dropoff cluster number 2, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**d_3**|_integer_|Dropoff cluster number 3, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**d_4**|_integer_|Dropoff cluster number 4, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
-|**p_5**|_integer_|Dropoff cluster number 5, it is `0` if ride does not belong to it, or `1` if ride belongs to it. Integer format, no units.|
+|**d_0**|_integer_|Dropoff cluster number 0, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**d_1**|_integer_|Dropoff cluster number 1, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**d_2**|_integer_|Dropoff cluster number 2, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**d_3**|_integer_|Dropoff cluster number 3, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**d_4**|_integer_|Dropoff cluster number 4, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
+|**p_5**|_integer_|Dropoff cluster number 5, it is `1` if the ride belongs to it, otherwise it is `0`. Integer format, no units.|
 |**estimated_distance**|_float_|Distance estimated from column `geodesic_distance` to better approximate actual taxi ride distance. Float format, unit in kilometers.|
 |**distance_hour**|_float_|Interaction term formed by multiplying `hour` and `estimated_distance`. Float format, no units.|
 |**airport_ride**|_object_|Airport code label assigned to taxi ride if it started or ended at either of the three major airports in the NYC metro area. Possible values are `LGA`, `JFK` or `EWR`. String format, no units.|
-|**JFK**|_integer_|Actual aiport designator column, it is `0` if ride did not start/end at JFK, it is `1` if it did. Integer format, no units.|
-|**LGA**|_integer_|Actual aiport designator column, it is `0` if ride did not start/end at LGA, it is `1` if it did. Integer format, no units.
-|**peak_rides**|_integer_|Rush hour designator. It is `0` if ride took place outside rush hour, or `1` if it did. Rush hour is Monday thru Friday only. The morning hours are from 6:30am to 9:30am and the afternoon/evening hours are from 3:00pm to 8:00pm. Integer format, no units.|
-|**weekend_rides**|_integer_|Weekend designator. It is `0` unless the ride took place on either Saturday or Sunday, in which case it is `1`. Integer format, no units.|
-|**holiday_rides**|_integer_|Christmas holiday designator. It is `0` unless the ride took place on either day of November or December, in which case it is `1`. Integer format, no units.|
+|**JFK**|_integer_|Actual aiport designator column, it is `1` if the ride started or ended at JFK, otherwise it is `0`. Integer format, no units.|
+|**LGA**|_integer_|Actual aiport designator column, it is `1` if the ride started or ended at LGA, otherwise it is `0`. Integer format, no units.
+|**peak_rides**|_integer_|Rush hour designator. It is `1` if the ride took place within the rush hour window, otherwise it is `0`. Rush hour is Monday thru Friday only. The morning hours are from 6:30am to 9:30am and the afternoon/evening hours are from 3:00pm to 8:00pm. Integer format, no units.|
+|**weekend_rides**|_integer_|Weekend designator. It is `1` if the ride took place on either Saturday or Sunday, otherwise it is `0`. Integer format, no units.|
+|**holiday_rides**|_integer_|Christmas holiday designator. It is `1` if the ride took place on either day in November or December, otherwise it is `0`. Integer format, no units.|
 
 ---
 
@@ -76,6 +76,9 @@ Complete and thorough analysis in various Jupyter notebooks are located below:<b
 [01_Intro_and_Cleaning.ipynb](./code/01_Intro_and_Cleaning.ipynb).<br>
 [02_EDA_and_Visualizations.ipynb](./code/02_Exploratory_Data_Analysis.ipynb).<br>
 [03_Pre-Processing_and_Modeling.ipynb](./code/03_Pre-Processing_and_Modeling.ipynb).<br>
+
+---
+### Models and App
 Pickled models are located [here](./models/).<br>
 Interactive Streamlit App is located [here](./scripts/).
 
