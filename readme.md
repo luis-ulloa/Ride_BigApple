@@ -15,7 +15,7 @@ After the data cleaning process was completed, the following datasets were gener
 
 |Feature|Type|Description|
 |---|---|---|
-|**fare_amount**|_float_|Fare paid by rider. Float format, unit in dollars.|
+|**fare_amount**|_float_|Fare paid by passenger. Float format, unit in dollars.|
 |**pickup_longitude**|_float_|Longitude coordinate of pickup location. Float format, unit in degrees.|
 |**pickup_latitude**|_float_|Latitude coordinate of pickup location. Float format, unit in degrees.|
 |**dropoff_longitude**|_float_|Longitude coordinate of dropoff location. Float format, unit in degrees.|
@@ -55,7 +55,7 @@ After the data cleaning process was completed, the following datasets were gener
 
 ### Summary
 
-Given the available data, predicting a yellow cab fare in NYC, as well as the estimated ride distance is possible. However, the final model yielded a RMSE of 3.60 dollars. At first glance, that's a good performance, but the base fare for a cab ride in NYC is 2.50 dollars, so trying to get the RMSE below that threshold is important since a very short ride may end up with a predicted fare that's below the base.
+Given the available data, predicting a yellow cab fare in NYC, as well as the estimated ride distance is possible. However, the final model yielded a RMSE of 3.60 dollars. At first glance, that's a good performance, but the base fare for a cab ride in NYC is 2.50 dollars, so trying to get the RMSE below that threshold is important since a very short ride may end up with a predicted fare that's below the base, or even negative.
 
 
 ---
@@ -74,7 +74,7 @@ Exploring all these possibilities and employing more in-depth feature engineerin
 
 Complete and thorough analysis in various Jupyter notebooks are located below:<br> 
 [01_Intro_and_Cleaning.ipynb](./code/01_Intro_and_Cleaning.ipynb).<br>
-[02_EDA_and_Visualizations.ipynb](./code/02_Exploratory_Data_Analysis.ipynb).<br>
+[02_EDA_and_Visualizations.ipynb](./code/02_Exploratory Data Analysis.ipynb).<br>
 [03_Pre-Processing_and_Modeling.ipynb](./code/03_Pre-Processing_and_Modeling.ipynb).<br>
 Pickled models are located [here](./models/).<br>
 Interactive Streamlit App is located [here](./scripts/).
