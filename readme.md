@@ -74,7 +74,7 @@ Exploring all these possibilities and employing more in-depth feature engineerin
 
 Complete and thorough analysis in various Jupyter notebooks are located below:<br> 
 [01_Intro_and_Cleaning.ipynb](./code/01_Intro_and_Cleaning.ipynb).<br>
-[02_EDA_and_Visualizations.ipynb](./code/02_Exploratory Data Analysis.ipynb).<br>
+[02_EDA_and_Visualizations.ipynb](./code/02_Exploratory_Data_Analysis.ipynb).<br>
 [03_Pre-Processing_and_Modeling.ipynb](./code/03_Pre-Processing_and_Modeling.ipynb).<br>
 Pickled models are located [here](./models/).<br>
 Interactive Streamlit App is located [here](./scripts/).
