@@ -14,10 +14,7 @@ from datetime import datetime
 #---------------------------------------------------------
 
 ####---------- DISCLAIMER -----------------------------####
-# I leveraged chatgpt to write a lot of these code lines
-# doing it on my own, under time constraints, would take too long
-# I provided instructions and then refactored some of the lines
-# to make it work the way a I wanted
+# some code lines were assisted by chatgpt
 
 
 
